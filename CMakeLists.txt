@@ -13,6 +13,13 @@ set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 set(BUILD_PYTHON_WRAPPER OFF CACHE BOOL "" FORCE)
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(APRILTAG_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(ENABLE_WERROR OFF CACHE BOOL "" FORCE)
+
+if(APPLE)
+  # Avoid iOS treating certain warnings as errors in third_party sources
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-error=shorten-64-to-32")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=shorten-64-to-32")
+endif()
 
 add_subdirectory(third_party/apriltag)
 
