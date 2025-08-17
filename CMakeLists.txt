@@ -46,4 +46,15 @@ set_target_properties(AprilTag PROPERTIES
   OUTPUT_NAME "AprilTag"
 )
 
+# iOS: 将上游 libapriltag.a 合并进本库，生成单一 libAprilTag.a 供 Unity 使用
+if(APPLE AND CMAKE_SYSTEM_NAME STREQUAL "iOS")
+  add_custom_command(TARGET AprilTag POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E echo "Merging libapriltag.a into libAprilTag.a"
+    COMMAND /usr/bin/libtool -static -o ${CMAKE_CURRENT_BINARY_DIR}/libAprilTag_merged.a
+            $<TARGET_FILE:AprilTag> $<TARGET_FILE:apriltag>
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/libAprilTag_merged.a $<TARGET_FILE:AprilTag>
+    BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/libAprilTag_merged.a
+  )
+endif()
+
 

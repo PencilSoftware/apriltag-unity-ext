@@ -132,12 +132,9 @@ jobs:
       - name: Package
         run: |
           mkdir -p out/iOS
-          # Our extension static lib
+          # Export single merged static libAprilTag.a
           if [ -f build-ios/Release-iphoneos/libAprilTag.a ]; then cp build-ios/Release-iphoneos/libAprilTag.a out/iOS/; fi
           if [ -f build-ios/libAprilTag.a ]; then cp build-ios/libAprilTag.a out/iOS/; fi
-          # Upstream apriltag static lib (symbols required at link time on iOS)
-          if [ -f build-ios/Release-iphoneos/libapriltag.a ]; then cp build-ios/Release-iphoneos/libapriltag.a out/iOS/; fi
-          if [ -f build-ios/libapriltag.a ]; then cp build-ios/libapriltag.a out/iOS/; fi
       - uses: actions/upload-artifact@v4
         with:
           name: plugins-ios
