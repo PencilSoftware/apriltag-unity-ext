@@ -23,7 +23,13 @@ endif()
 
 add_subdirectory(third_party/apriltag)
 
-add_library(AprilTag SHARED
+# Build static lib on iOS, shared elsewhere
+set(LIB_TYPE SHARED)
+if(APPLE AND CMAKE_SYSTEM_NAME STREQUAL "iOS")
+  set(LIB_TYPE STATIC)
+endif()
+
+add_library(AprilTag ${LIB_TYPE}
   src/unity_ext.c
 )
 

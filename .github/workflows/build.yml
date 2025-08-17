@@ -133,6 +133,7 @@ jobs:
         run: |
           mkdir -p out/iOS
           if [ -f build-ios/Release-iphoneos/libAprilTag.a ]; then cp build-ios/Release-iphoneos/libAprilTag.a out/iOS/; fi
+          if [ -f build-ios/libAprilTag.a ]; then cp build-ios/libAprilTag.a out/iOS/; fi
       - uses: actions/upload-artifact@v4
         with:
           name: plugins-ios
