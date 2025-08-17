@@ -65,7 +65,7 @@ jobs:
           cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
           cmake --build build --config Release
           mkdir -p out/macOS/AprilTag.bundle/Contents/MacOS
-          if [ -f build/AprilTag.dylib ]; then cp build/AprilTag.dylib out/macOS/AprilTag.bundle/Contents/MacOS/AprilTag; fi
+          if [ -f build/libAprilTag.dylib ]; then cp build/libAprilTag.dylib out/macOS/AprilTag.bundle/Contents/MacOS/AprilTag; elif [ -f build/AprilTag.dylib ]; then cp build/AprilTag.dylib out/macOS/AprilTag.bundle/Contents/MacOS/AprilTag; fi
       - uses: actions/upload-artifact@v4
         with:
           name: plugins-macos
@@ -89,10 +89,11 @@ jobs:
       - name: Configure
         env:
           ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
+          ANDROID_NDK_ROOT: ${{ env.ANDROID_NDK_ROOT }}
         run: |
           cmake -B build-${{ matrix.abi }} -G Ninja \
             -DANDROID=ON -DANDROID_ABI=${{ matrix.abi }} -DANDROID_PLATFORM=android-21 \
-            -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake \
+            -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK_ROOT:-${ANDROID_NDK_HOME}}/build/cmake/android.toolchain.cmake \
             -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
       - name: Build
         run: cmake --build build-${{ matrix.abi }} --config Release
@@ -118,7 +119,9 @@ jobs:
           cmake -B build-ios -G Xcode \
             -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_ARCHITECTURES="arm64" \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 \
-            -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release
+            -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO \
+            -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED=NO
       - name: Build
         run: cmake --build build-ios --config Release
       - name: Package
