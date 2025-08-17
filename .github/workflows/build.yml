@@ -42,9 +42,10 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
       - name: Package
+        shell: bash
         run: |
-          mkdir out\Windows
-          if exist build\Release\AprilTag.dll copy build\Release\AprilTag.dll out\Windows\
+          mkdir -p out/Windows
+          if [ -f build/Release/AprilTag.dll ]; then cp build/Release/AprilTag.dll out/Windows/; fi
       - uses: actions/upload-artifact@v4
         with:
           name: plugins-windows
@@ -83,6 +84,8 @@ jobs:
           git clone --depth=1 https://github.com/AprilRobotics/apriltag.git third_party/apriltag
       - uses: nttld/setup-ndk@v1
         with: { ndk-version: r25c }
+      - name: Install Ninja
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
       - name: Configure
         env:
           ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
