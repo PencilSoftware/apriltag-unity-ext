@@ -87,13 +87,16 @@ jobs:
       - name: Install Ninja
         run: sudo apt-get update && sudo apt-get install -y ninja-build
       - name: Configure
-        env:
-          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
-          ANDROID_NDK_ROOT: ${{ env.ANDROID_NDK_ROOT }}
+        shell: bash
         run: |
+          set -e
+          NDK="$ANDROID_NDK_ROOT"
+          if [ -z "$NDK" ]; then NDK="$ANDROID_NDK_HOME"; fi
+          if [ -z "$NDK" ]; then NDK=$(ls -d $HOME/**/android-ndk-*/ 2>/dev/null | head -n1); fi
+          echo "Using NDK at: $NDK"
           cmake -B build-${{ matrix.abi }} -G Ninja \
             -DANDROID=ON -DANDROID_ABI=${{ matrix.abi }} -DANDROID_PLATFORM=android-21 \
-            -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK_ROOT:-${ANDROID_NDK_HOME}}/build/cmake/android.toolchain.cmake \
+            -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake \
             -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
       - name: Build
         run: cmake --build build-${{ matrix.abi }} --config Release
@@ -121,9 +124,10 @@ jobs:
             -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 \
             -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO \
-            -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED=NO
+            -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED=NO \
+            -DBUILD_TESTING=OFF -DBUILD_PYTHON_WRAPPER=OFF -DBUILD_EXAMPLES=OFF -DAPRILTAG_BUILD_EXAMPLES=OFF
       - name: Build
-        run: cmake --build build-ios --config Release
+        run: cmake --build build-ios --config Release -- -quiet
       - name: Package
         run: |
           mkdir -p out/iOS
